@@ -3,6 +3,13 @@ import requests
 from bs4 import BeautifulSoup
 import os
 
+def getSoup(url):
+    response = requests.get(url)
+    html = response.content
+
+    soup = BeautifulSoup(html, "html.parser")
+    return soup
+
 def getLatestPost():
     homePage = "http://musigh.com/"
 
@@ -10,13 +17,6 @@ def getLatestPost():
 
     return latestPostURL
 
-
-def getSoup(url):
-    response = requests.get(url)
-    html = response.content
-
-    soup = BeautifulSoup(html, "html.parser")
-    return soup
 
 def getMusicInfo(url):
     soup = getSoup(url)
@@ -51,31 +51,6 @@ def consoleIterate():
     while (blogpost != ""):
         print(getMusicInfo(blogpost))
         blogpost = getNext(blogpost)
-
-def createFile(fName):
-    blogpost = getLatestPost()
-
-    i = 0
-    while (blogpost != ""):
-        message = getMusicInfo(blogpost)
-
-        try:
-            f = open(fName + ".txt", "x")
-            f.write(message + "\n")
-            print("Post #" + str(i))
-            print(blogpost)
-        except:
-            f.write("Error: program could not write blog post to file\nLink: " + blogpost + "\n\n")
-
-            print("Post #" + str(i))
-            print("\tError: program could not write blog post to file")
-            print("\tLink: " + blogpost)
-
-        i += 1
-
-        blogpost = getNext(blogpost)
-
-    f.close();
 
 def downloadMusic(url):
     soup = getSoup(url)
@@ -148,4 +123,31 @@ def scrapeMusic():
         blogpost = getNext(blogpost)
         i+=1
 
-consoleIterate()
+def menu():
+    print("1) List Songs")
+    print("2) Download MP3s")
+    print("3) Exit")
+
+    userin = input("Select an option: ")
+    print()
+
+    return userin
+
+def main():
+    print("Musigh Scraper v1.2")
+    print("By: Tom Sarver\n")
+
+    option = "0"
+
+    while(option != "3"):
+
+        option = menu()
+
+        if (option == "1"):
+            consoleIterate()
+        elif (option == "2"):
+            scrapeMusic()
+        elif (option == "3"):
+            print("Program Terminated.")
+
+main()
