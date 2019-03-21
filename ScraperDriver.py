@@ -45,7 +45,16 @@ def getNext(url):
     else:
         return ""
 
-def consoleIterate():
+def listURL():
+    blogpost = getLatestPost()
+
+    i = 0
+    while (blogpost != ""):
+        print("Post "+ str(i)+": " + blogpost)
+        blogpost = getNext(blogpost)
+        i+=1
+
+def listSongs():
     blogpost = getLatestPost()
 
     while (blogpost != ""):
@@ -124,9 +133,10 @@ def scrapeMusic():
         i+=1
 
 def menu():
-    print("1) List Songs")
-    print("2) Download MP3s")
-    print("3) Exit")
+    print("1) List URLs")
+    print("2) List Songs")
+    print("3) Download MP3s")
+    print("4) Exit")
 
     userin = input("Select an option: ")
     print()
@@ -139,15 +149,17 @@ def main():
 
     option = "0"
 
-    while(option != "3"):
+    while(option != "4"):
 
         option = menu()
 
         if (option == "1"):
-            consoleIterate()
+            listURL()
         elif (option == "2"):
-            scrapeMusic()
+            listSongs()
         elif (option == "3"):
+            scrapeMusic()
+        elif (option == "4"):
             print("Program Terminated.")
 
 main()
