@@ -1,22 +1,35 @@
+#Musigh Scraper v1.3
+#By: Tom Sarver
+
 import urllib
-import requests
+import mechanize
 from bs4 import BeautifulSoup
 import os
 
-def getSoup(url):
-    response = requests.get(url)
-    html = response.content
+def getBrowser():
+    br = mechanize.Browser()
+    br.set_handle_robots(False)
 
-    soup = BeautifulSoup(html, "html.parser")
+    return br
+
+def getSoup(url):
+    browser = getBrowser()
+    html = browser.open(url).read()
+
+    browser.close()
+
+    soup = BeautifulSoup(html, "html5lib")
+
     return soup
 
 def getLatestPost():
-    homePage = "http://musigh.com/"
+    url = "http://musigh.com/"
 
-    latestPostURL = getSoup(homePage).find("div", id="content").find_all("div", class_="post-title")[0].find("a")['href']
+    soup = getSoup(url)
+    
+    latestPostURL = soup.find("div", id="content").find_all("div", class_="post-title")[0].find("a")['href']
 
     return latestPostURL
-
 
 def getMusicInfo(url):
     soup = getSoup(url)
@@ -72,7 +85,11 @@ def downloadMusic(url):
     for link in articleLinks:
         if (".mp3" in link['href']):
             try:
-                doc = requests.get(link['href'])
+                browser = getBrowser()
+                browser.open(link['href']).read()
+
+                doc = browser.open(link['href']).read()
+                
                 linkURL = link['href'].split("/")
             except:
                 print("\tERROR: Could not get link URL")
@@ -144,9 +161,6 @@ def menu():
     return userin
 
 def main():
-    print("Musigh Scraper v1.2")
-    print("By: Tom Sarver\n")
-
     option = "0"
 
     while(option != "4"):
@@ -162,4 +176,12 @@ def main():
         elif (option == "4"):
             print("Program Terminated.")
 
+def testFxn():
+    url = "http://www.musigh.com/"
+
+    soup = getSoup(url)
+
+    return soup
+
 main()
+#testFxn()
