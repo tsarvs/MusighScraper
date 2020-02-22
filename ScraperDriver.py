@@ -1,10 +1,12 @@
-#Musigh Scraper v1.3
-#By: Tom Sarver
+# Musigh Scraper v1.3
+# By: Tom Sarver
 
-import urllib
+import urllib.request
 import mechanize
+import requests
 from bs4 import BeautifulSoup
 import os
+
 
 def getBrowser():
     br = mechanize.Browser()
@@ -26,7 +28,7 @@ def getLatestPost():
     url = "http://musigh.com/"
 
     soup = getSoup(url)
-    
+
     latestPostURL = soup.find("div", id="content").find_all("div", class_="post-title")[0].find("a")['href']
 
     return latestPostURL
@@ -43,7 +45,7 @@ def getMusicInfo(url):
 
     for x in article.find("div", class_="post-content").find_all("p"):
         song = x.find("strong")
-        if(song != None):
+        if (song != None):
             message += ("\t" + song.get_text() + "\n")
 
     return message
@@ -63,9 +65,9 @@ def listURL():
 
     i = 0
     while (blogpost != ""):
-        print("Post "+ str(i)+": " + blogpost)
+        print("Post " + str(i) + ": " + blogpost)
         blogpost = getNext(blogpost)
-        i+=1
+        i += 1
 
 def listSongs():
     blogpost = getLatestPost()
@@ -84,15 +86,13 @@ def downloadMusic(url):
     i = 0
     for link in articleLinks:
         if (".mp3" in link['href']):
-            try:
-                browser = getBrowser()
-                browser.open(link['href']).read()
 
-                doc = browser.open(link['href']).read()
-                
-                linkURL = link['href'].split("/")
+            linkURL = link['href'].split("/")
+
+            try:
+                data = urllib.request.urlopen(link['href']).read()
             except:
-                print("\tERROR: Could not get link URL")
+                print("\tERROR: Could not gather file data.")
 
             try:
                 fileName = linkURL[len(linkURL) - 1]
@@ -106,48 +106,46 @@ def downloadMusic(url):
                 print("\tWARNING: using 'Other' for year")
                 year = "Other"
 
-            dirName = "Music/" + year + "/"
             try:
-                # download file
-                if (not os.path.exists(dirName+fileName)):
-                    f = open(fileName, "wb")
-                    f.write(doc.content)
-                    f.close()
+                dirName = "Music/" + year + "/"
+                if (True):  # try:
+                    # download file
+                    if (not os.path.exists(dirName + fileName)):
+                        f = open(fileName, "wb")
+                        f.write(data)
+                        f.close()
 
-                    #directorize file
-                    try:
-                        if not os.path.exists(dirName):
-                            os.makedirs(dirName)
-
-                        os.rename(fileName, dirName + fileName)
-                        print("\tFile written to directory: " + dirName + fileName)
-                    except:
-                        print("\tWARNING: duplicate mp3 " + dirName + fileName)
+                        # directorize file
                         try:
-                            print("\tRemoving duplicate...")
-                            os.remove(fileName)
+                            if not os.path.exists(dirName):
+                                os.makedirs(dirName)
+
+                            os.rename(fileName, dirName + fileName)
+                            print("\tFile written to directory: " + dirName + fileName)
                         except:
-                            print("\tERROR: Could not remove duplicate file")
-
-
+                            print("\tWARNING: duplicate mp3 " + dirName + fileName)
+                            try:
+                                print("\tRemoving duplicate...")
+                                os.remove(fileName)
+                            except:
+                                print("\tERROR: Could not remove duplicate file")
             except:
                 print("\tERROR: Could not save mp3 #" + str(i))
 
-        i+=1
+            i += 1
 
 def scrapeMusic():
     blogpost = getLatestPost()
 
     i = 0
     while (blogpost != ""):
-
-        print("Post "+str(i))
+        print("Post " + str(i))
         print(blogpost)
 
         downloadMusic(blogpost)
 
         blogpost = getNext(blogpost)
-        i+=1
+        i += 1
 
 def menu():
     print("1) List URLs")
@@ -163,7 +161,7 @@ def menu():
 def main():
     option = "0"
 
-    while(option != "4"):
+    while (option != "4"):
 
         option = menu()
 
@@ -176,12 +174,5 @@ def main():
         elif (option == "4"):
             print("Program Terminated.")
 
-def testFxn():
-    url = "http://www.musigh.com/"
-
-    soup = getSoup(url)
-
-    return soup
 
 main()
-#testFxn()
